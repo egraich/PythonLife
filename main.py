@@ -17,6 +17,7 @@ grid = np.random.choice([0, 1], size=(ROWS, COLS), p=[0.8, 0.2]).astype(np.int8)
 paused = False
 is_fullscreen = False
 saved_width, saved_height = WIDTH, HEIGHT
+speed_multiplier = 1
 
 def update_grid(current_grid):
     neighbors = (
@@ -69,6 +70,12 @@ while running:
                 r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
                 new_grid[:r, :c] = grid[:r, :c]
                 grid = new_grid
+            elif event.key == pygame.K_1:
+                speed_multiplier = 1
+            elif event.key == pygame.K_2:
+                speed_multiplier = 2
+            elif event.key == pygame.K_3:
+                speed_multiplier = 4
 
     if pygame.mouse.get_pressed()[0] or pygame.mouse.get_pressed()[2]:
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -88,6 +95,6 @@ while running:
         grid = update_grid(grid)
 
     pygame.display.flip()
-    clock.tick(30)
+    clock.tick(30 * speed_multiplier)
 
 pygame.quit()
