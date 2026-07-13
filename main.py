@@ -1,23 +1,26 @@
 import pygame
 import numpy as np
+import config
 
-WIDTH, HEIGHT = 800, 600
-CELL_SIZE = 8
+WIDTH, HEIGHT = config.DEFAULT_WIDTH, config.DEFAULT_HEIGHT
+CELL_SIZE = config.CELL_SIZE
 COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
-
-COLOR_BG = (10, 10, 15)
-COLOR_ALIVE = (0, 255, 150)
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-pygame.display.set_caption("PythonLife")
+pygame.display.set_caption(config.WINDOW_TITLE)
 clock = pygame.time.Clock()
 
-grid = np.random.choice([0, 1], size=(ROWS, COLS), p=[0.8, 0.2]).astype(np.int8)
+grid = np.random.choice(
+    [0, 1], 
+    size=(ROWS, COLS), 
+    p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
+).astype(np.int8)
+
 paused = False
 is_fullscreen = False
 saved_width, saved_height = WIDTH, HEIGHT
-speed_multiplier = 1
+speed_multiplier = config.MULT_SPEED_1
 
 def update_grid(current_grid):
     neighbors = (
@@ -36,7 +39,7 @@ def update_grid(current_grid):
 
 running = True
 while running:
-    screen.fill(COLOR_BG)
+    screen.fill(config.COLOR_BG)
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -46,16 +49,20 @@ while running:
                 if event.size != (WIDTH, HEIGHT):
                     WIDTH, HEIGHT = event.size
                     COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
-                    new_grid = np.random.choice([0, 1], size=(ROWS, COLS), p=[0.8, 0.2]).astype(np.int8)
+                    new_grid = np.random.choice(
+                        [0, 1], 
+                        size=(ROWS, COLS), 
+                        p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
+                    ).astype(np.int8)
                     r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
                     new_grid[:r, :c] = grid[:r, :c]
                     grid = new_grid
                     screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
+            if event.key == config.KEY_PAUSE:
                 paused = not paused
-                pygame.display.set_caption(f"PythonLife {'[PAUSED]' if paused else ''}")
-            elif event.key == pygame.K_F11:
+                pygame.display.set_caption(f"{config.WINDOW_TITLE} {'[PAUSED]' if paused else ''}")
+            elif event.key == config.KEY_FULLSCREEN:
                 is_fullscreen = not is_fullscreen
                 if is_fullscreen:
                     saved_width, saved_height = WIDTH, HEIGHT
@@ -66,16 +73,20 @@ while running:
                     WIDTH, HEIGHT = saved_width, saved_height
                 
                 COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
-                new_grid = np.random.choice([0, 1], size=(ROWS, COLS), p=[0.8, 0.2]).astype(np.int8)
+                new_grid = np.random.choice(
+                    [0, 1], 
+                    size=(ROWS, COLS), 
+                    p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
+                ).astype(np.int8)
                 r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
                 new_grid[:r, :c] = grid[:r, :c]
                 grid = new_grid
-            elif event.key == pygame.K_1:
-                speed_multiplier = 1
-            elif event.key == pygame.K_2:
-                speed_multiplier = 2
-            elif event.key == pygame.K_3:
-                speed_multiplier = 4
+            elif event.key == config.KEY_SPEED_1:
+                speed_multiplier = config.MULT_SPEED_1
+            elif event.key == config.KEY_SPEED_2:
+                speed_multiplier = config.MULT_SPEED_2
+            elif event.key == config.KEY_SPEED_3:
+                speed_multiplier = config.MULT_SPEED_3
 
     if pygame.mouse.get_pressed()[0] or pygame.mouse.get_pressed()[2]:
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -87,7 +98,7 @@ while running:
     for row, col in zip(y_indices, x_indices):
         pygame.draw.rect(
             screen, 
-            COLOR_ALIVE, 
+            config.COLOR_ALIVE, 
             (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1)
         )
 
@@ -95,6 +106,6 @@ while running:
         grid = update_grid(grid)
 
     pygame.display.flip()
-    clock.tick(30 * speed_multiplier)
+    clock.tick(config.BASE_FPS * speed_multiplier)
 
 pygame.quit()
