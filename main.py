@@ -1,7 +1,6 @@
 import pygame
 import numpy as np
 
-
 WIDTH, HEIGHT = 800, 600
 CELL_SIZE = 8
 COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
@@ -9,13 +8,13 @@ COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
 COLOR_BG = (10, 10, 15)
 COLOR_ALIVE = (0, 255, 150)
 
-
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("PythonLife")
 clock = pygame.time.Clock()
 
 grid = np.random.choice([0, 1], size=(ROWS, COLS), p=[0.8, 0.2]).astype(np.int8)
+paused = False
 
 def update_grid(current_grid):
     neighbors = (
@@ -39,6 +38,16 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                paused = not paused
+                pygame.display.set_caption(f"PythonLife {'[PAUSED]' if paused else ''}")
+
+    if pygame.mouse.get_pressed()[0]:
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        col, row = mouse_x // CELL_SIZE, mouse_y // CELL_SIZE
+        if 0 <= col < COLS and 0 <= row < ROWS:
+            grid[row, col] = 1
 
     y_indices, x_indices = np.where(grid == 1)
     for row, col in zip(y_indices, x_indices):
@@ -48,9 +57,10 @@ while running:
             (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1)
         )
 
-    grid = update_grid(grid)
+    if not paused:
+        grid = update_grid(grid)
 
     pygame.display.flip()
-    clock.tick(20)
+    clock.tick(30)
 
 pygame.quit()
