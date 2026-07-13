@@ -6,10 +6,9 @@ An interactive Conway's Game of Life simulation running on NumPy and Pygame.
 
 ## Quick Start
 
-```bash
-pip install pygame numpy
-python main.py
-```
+* 1 Go to [github release](https://github.com/egraich/PythonLife/releases/tag/v1.0.0).
+* 2 Download `PythonLife.exe` file.
+* 3 Open it!
 
 ## Features
 
