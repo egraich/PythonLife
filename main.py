@@ -19,7 +19,6 @@ grid = np.random.choice(
 
 paused = False
 is_fullscreen = False
-saved_width, saved_height = WIDTH, HEIGHT
 speed_multiplier = config.MULT_SPEED_1
 
 def update_grid(current_grid):
@@ -45,37 +44,33 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.VIDEORESIZE:
-            # Игнорируем системные ресайзы, если мы в фулскрине или размеры не изменились
+            # Обновляем сетку только при реальном ручном изменении окна в оконном режиме
             if not is_fullscreen:
-                if event.size != (WIDTH, HEIGHT):
-                    WIDTH, HEIGHT = event.size
-                    COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
-                    
-                    new_grid = np.random.choice(
-                        [0, 1], 
-                        size=(ROWS, COLS), 
-                        p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
-                    ).astype(np.int8)
-                    r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
-                    new_grid[:r, :c] = grid[:r, :c]
-                    grid = new_grid
-                    
-                    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+                WIDTH, HEIGHT = event.size
+                COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
+                
+                new_grid = np.random.choice(
+                    [0, 1], 
+                    size=(ROWS, COLS), 
+                    p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
+                ).astype(np.int8)
+                r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
+                new_grid[:r, :c] = grid[:r, :c]
+                grid = new_grid
+                
+                screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
         elif event.type == pygame.KEYDOWN:
             if event.key == config.KEY_PAUSE:
                 paused = not paused
                 pygame.display.set_caption(f"{config.WINDOW_TITLE} {'[PAUSED]' if paused else ''}")
             elif event.key == config.KEY_FULLSCREEN:
+                # Переключаем фулскрин силами самого Pygame без костылей с размерами
+                pygame.display.toggle_fullscreen()
                 is_fullscreen = not is_fullscreen
-                if is_fullscreen:
-                    saved_width, saved_height = WIDTH, HEIGHT
-                    # (0, 0) автоматически подтянет нативное разрешение твоего монитора
-                    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-                else:
-                    screen = pygame.display.set_mode((saved_width, saved_height), pygame.RESIZABLE)
                 
-                # Сразу жестко обновляем переменные размеров, блокируя левые ивенты
-                WIDTH, HEIGHT = screen.get_size()
+                # Актуализируем размеры под то, что выдала система
+                current_surface = pygame.display.get_surface()
+                WIDTH, HEIGHT = current_surface.get_size()
                 COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
                 
                 new_grid = np.random.choice(
