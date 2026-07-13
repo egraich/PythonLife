@@ -9,7 +9,7 @@ COLOR_BG = (10, 10, 15)
 COLOR_ALIVE = (0, 255, 150)
 
 pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("PythonLife")
 clock = pygame.time.Clock()
 
@@ -38,6 +38,14 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.VIDEORESIZE:
+            WIDTH, HEIGHT = event.size
+            COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
+            new_grid = np.zeros((ROWS, COLS), dtype=np.int8)
+            r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
+            new_grid[:r, :c] = grid[:r, :c]
+            grid = new_grid
+            screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 paused = not paused
