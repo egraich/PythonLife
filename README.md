@@ -15,7 +15,7 @@ An interactive Conway's Game of Life simulation running on NumPy and Pygame.
 * **Interactive Canvas**: Left-click to draw living cells, right-click to clear them.
 * **Time Controls**: Press Space to freeze time for building, and use keys 1, 2, or 3 to speed up or slow down the simulation loop on the fly.
 * **Seamless Window Scaling**: Supports native window resizing and F11 borderless fullscreen. The simulation auto-extends on the fly, introducing random noise into newly opened space while preserving your existing patterns intact.
-* **Configuration file**: All constants, visual styles, initial scale properties, and custom keybindings are completely isolated within `config.py`.
+* **Configuration File**: All constants, visual styles, initial scale properties, and custom keybindings are completely isolated within `config.py`.
 
 ## Local Setup
 
@@ -25,7 +25,7 @@ An interactive Conway's Game of Life simulation running on NumPy and Pygame.
 * Pygame
 
 ### Running the Project
-1. Clone the repository.
+1. Clone the repository:
 ```bash
 git clone https://github.com/egraich/PythonLife
 ```
