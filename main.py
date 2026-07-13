@@ -45,10 +45,12 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.VIDEORESIZE:
+            # Игнорируем системные ресайзы, если мы в фулскрине или размеры не изменились
             if not is_fullscreen:
                 if event.size != (WIDTH, HEIGHT):
                     WIDTH, HEIGHT = event.size
                     COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
+                    
                     new_grid = np.random.choice(
                         [0, 1], 
                         size=(ROWS, COLS), 
@@ -57,6 +59,7 @@ while running:
                     r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
                     new_grid[:r, :c] = grid[:r, :c]
                     grid = new_grid
+                    
                     screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
         elif event.type == pygame.KEYDOWN:
             if event.key == config.KEY_PAUSE:
@@ -66,13 +69,15 @@ while running:
                 is_fullscreen = not is_fullscreen
                 if is_fullscreen:
                     saved_width, saved_height = WIDTH, HEIGHT
+                    # (0, 0) автоматически подтянет нативное разрешение твоего монитора
                     screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
-                    WIDTH, HEIGHT = screen.get_size()
                 else:
                     screen = pygame.display.set_mode((saved_width, saved_height), pygame.RESIZABLE)
-                    WIDTH, HEIGHT = saved_width, saved_height
                 
+                # Сразу жестко обновляем переменные размеров, блокируя левые ивенты
+                WIDTH, HEIGHT = screen.get_size()
                 COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
+                
                 new_grid = np.random.choice(
                     [0, 1], 
                     size=(ROWS, COLS), 
