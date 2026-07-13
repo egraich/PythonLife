@@ -1,4 +1,3 @@
-import asyncio
 import pygame
 import numpy as np
 import config
@@ -10,8 +9,10 @@ COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption(config.WINDOW_TITLE)
+clock = pygame.time.Clock()
 
-grid = np.random.choice([0, 1], 
+grid = np.random.choice(
+    [0, 1], 
     size=(ROWS, COLS), 
     p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
 ).astype(np.int8)
@@ -35,82 +36,74 @@ def update_grid(current_grid):
     survive = ((neighbors == 2) | (neighbors == 3)) & (current_grid == 1)
     return np.where(birth | survive, 1, 0).astype(np.int8)
 
-async def main():
-    global WIDTH, HEIGHT, COLS, ROWS, grid, paused, is_fullscreen, speed_multiplier, screen
-    
-    running = True
-    while running:
-        start_time = pygame.time.get_ticks()
-        screen.fill(config.COLOR_BG)
+running = True
+while running:
+    screen.fill(config.COLOR_BG)
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            elif event.type == pygame.VIDEORESIZE:
-                if not is_fullscreen:
-                    WIDTH, HEIGHT = event.size
-                    COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
-                    
-                    new_grid = np.random.choice([0, 1], 
-                        size=(ROWS, COLS), 
-                        p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
-                    ).astype(np.int8)
-                    r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
-                    new_grid[:r, :c] = grid[:r, :c]
-                    grid = new_grid
-                    
-                    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
-            elif event.type == pygame.KEYDOWN:
-                if event.key == config.KEY_PAUSE:
-                    paused = not paused
-                    pygame.display.set_caption(f"{config.WINDOW_TITLE} {'[PAUSED]' if paused else ''}")
-                elif event.key == config.KEY_FULLSCREEN:
-                    pygame.display.toggle_fullscreen()
-                    is_fullscreen = not is_fullscreen
-                    
-                    current_surface = pygame.display.get_surface()
-                    WIDTH, HEIGHT = current_surface.get_size()
-                    COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
-                    
-                    new_grid = np.random.choice([0, 1], 
-                        size=(ROWS, COLS), 
-                        p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
-                    ).astype(np.int8)
-                    r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
-                    new_grid[:r, :c] = grid[:r, :c]
-                    grid = new_grid
-                elif event.key == config.KEY_SPEED_1:
-                    speed_multiplier = config.MULT_SPEED_1
-                elif event.key == config.KEY_SPEED_2:
-                    speed_multiplier = config.MULT_SPEED_2
-                elif event.key == config.KEY_SPEED_3:
-                    speed_multiplier = config.MULT_SPEED_3
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.VIDEORESIZE:
 
-        if pygame.mouse.get_pressed()[0] or pygame.mouse.get_pressed()[2]:
-            mouse_x, mouse_y = pygame.mouse.get_pos()
-            col, row = mouse_x // CELL_SIZE, mouse_y // CELL_SIZE
-            if 0 <= col < COLS and 0 <= row < ROWS:
-                grid[row, col] = 1 if pygame.mouse.get_pressed()[0] else 0
+            if not is_fullscreen:
+                WIDTH, HEIGHT = event.size
+                COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
+                
+                new_grid = np.random.choice(
+                    [0, 1], 
+                    size=(ROWS, COLS), 
+                    p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
+                ).astype(np.int8)
+                r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
+                new_grid[:r, :c] = grid[:r, :c]
+                grid = new_grid
+                
+                screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+        elif event.type == pygame.KEYDOWN:
+            if event.key == config.KEY_PAUSE:
+                paused = not paused
+                pygame.display.set_caption(f"{config.WINDOW_TITLE} {'[PAUSED]' if paused else ''}")
+            elif event.key == config.KEY_FULLSCREEN:
+                pygame.display.toggle_fullscreen()
+                is_fullscreen = not is_fullscreen
+                
+                current_surface = pygame.display.get_surface()
+                WIDTH, HEIGHT = current_surface.get_size()
+                COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
+                
+                new_grid = np.random.choice(
+                    [0, 1], 
+                    size=(ROWS, COLS), 
+                    p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
+                ).astype(np.int8)
+                r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
+                new_grid[:r, :c] = grid[:r, :c]
+                grid = new_grid
+            elif event.key == config.KEY_SPEED_1:
+                speed_multiplier = config.MULT_SPEED_1
+            elif event.key == config.KEY_SPEED_2:
+                speed_multiplier = config.MULT_SPEED_2
+            elif event.key == config.KEY_SPEED_3:
+                speed_multiplier = config.MULT_SPEED_3
 
-        y_indices, x_indices = np.where(grid == 1)
-        for row, col in zip(y_indices, x_indices):
-            pygame.draw.rect(
-                screen, 
-                config.COLOR_ALIVE, 
-                (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1)
-            )
+    if pygame.mouse.get_pressed()[0] or pygame.mouse.get_pressed()[2]:
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        col, row = mouse_x // CELL_SIZE, mouse_y // CELL_SIZE
+        if 0 <= col < COLS and 0 <= row < ROWS:
+            grid[row, col] = 1 if pygame.mouse.get_pressed()[0] else 0
 
-        if not paused:
-            grid = update_grid(grid)
+    y_indices, x_indices = np.where(grid == 1)
+    for row, col in zip(y_indices, x_indices):
+        pygame.draw.rect(
+            screen, 
+            config.COLOR_ALIVE, 
+            (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1)
+        )
 
-        pygame.display.flip()
-        
-        target_fps = config.BASE_FPS * speed_multiplier
-        frame_time = 1000 / target_fps
-        elapsed_time = pygame.time.get_ticks() - start_time
-        sleep_time = max(0, (frame_time - elapsed_time) / 1000)
-        await asyncio.sleep(sleep_time)
+    if not paused:
+        grid = update_grid(grid)
 
-    pygame.quit()
+    pygame.display.flip()
+    clock.tick(config.BASE_FPS * speed_multiplier)
 
-asyncio.run(main())
+pygame.quit()
