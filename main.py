@@ -50,13 +50,14 @@ while running:
             if event.key == pygame.K_SPACE:
                 paused = not paused
                 pygame.display.set_caption(f"PythonLife {'[PAUSED]' if paused else ''}")
+            elif event.key == pygame.K_F11:
+                pygame.display.toggle_fullscreen()
 
-    pressed_buttons = pygame.mouse.get_pressed()
-    if pressed_buttons[0] or pressed_buttons[2]:
+    if pygame.mouse.get_pressed()[0] or pygame.mouse.get_pressed()[2]:
         mouse_x, mouse_y = pygame.mouse.get_pos()
         col, row = mouse_x // CELL_SIZE, mouse_y // CELL_SIZE
         if 0 <= col < COLS and 0 <= row < ROWS:
-            grid[row, col] = 1 if pressed_buttons[0] else 0
+            grid[row, col] = 1 if pygame.mouse.get_pressed()[0] else 0
 
     y_indices, x_indices = np.where(grid == 1)
     for row, col in zip(y_indices, x_indices):
