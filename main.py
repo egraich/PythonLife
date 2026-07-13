@@ -10,10 +10,8 @@ COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption(config.WINDOW_TITLE)
-clock = pygame.time.Clock()
 
-grid = np.random.choice(
-    [0, 1], 
+grid = np.random.choice([0, 1], 
     size=(ROWS, COLS), 
     p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
 ).astype(np.int8)
@@ -38,10 +36,11 @@ def update_grid(current_grid):
     return np.where(birth | survive, 1, 0).astype(np.int8)
 
 async def main():
-    global WIDTH, HEIGHT, COLS, ROWS, grid, paused, is_fullscreen, speed_multiplier
+    global WIDTH, HEIGHT, COLS, ROWS, grid, paused, is_fullscreen, speed_multiplier, screen
     
     running = True
     while running:
+        start_time = pygame.time.get_ticks()
         screen.fill(config.COLOR_BG)
 
         for event in pygame.event.get():
@@ -52,8 +51,7 @@ async def main():
                     WIDTH, HEIGHT = event.size
                     COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
                     
-                    new_grid = np.random.choice(
-                        [0, 1], 
+                    new_grid = np.random.choice([0, 1], 
                         size=(ROWS, COLS), 
                         p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
                     ).astype(np.int8)
@@ -74,8 +72,7 @@ async def main():
                     WIDTH, HEIGHT = current_surface.get_size()
                     COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
                     
-                    new_grid = np.random.choice(
-                        [0, 1], 
+                    new_grid = np.random.choice([0, 1], 
                         size=(ROWS, COLS), 
                         p=[1.0 - config.SPAWN_ALIVE_CHANCE, config.SPAWN_ALIVE_CHANCE]
                     ).astype(np.int8)
@@ -107,8 +104,12 @@ async def main():
             grid = update_grid(grid)
 
         pygame.display.flip()
-        clock.tick(config.BASE_FPS * speed_multiplier)
-        await asyncio.sleep(0)
+        
+        target_fps = config.BASE_FPS * speed_multiplier
+        frame_time = 1000 / target_fps
+        elapsed_time = pygame.time.get_ticks() - start_time
+        sleep_time = max(0, (frame_time - elapsed_time) / 1000)
+        await asyncio.sleep(sleep_time)
 
     pygame.quit()
 
