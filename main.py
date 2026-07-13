@@ -9,12 +9,15 @@ COLOR_BG = (10, 10, 15)
 COLOR_ALIVE = (0, 255, 150)
 
 pygame.init()
-screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+flags = pygame.RESIZABLE
+screen = pygame.display.set_mode((WIDTH, HEIGHT), flags)
 pygame.display.set_caption("PythonLife")
 clock = pygame.time.Clock()
 
 grid = np.random.choice([0, 1], size=(ROWS, COLS), p=[0.8, 0.2]).astype(np.int8)
 paused = False
+is_fullscreen = False
+saved_width, saved_height = WIDTH, HEIGHT
 
 def update_grid(current_grid):
     neighbors = (
@@ -45,13 +48,20 @@ while running:
             r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
             new_grid[:r, :c] = grid[:r, :c]
             grid = new_grid
-            screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+            screen = pygame.display.set_mode((WIDTH, HEIGHT), flags)
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 paused = not paused
                 pygame.display.set_caption(f"PythonLife {'[PAUSED]' if paused else ''}")
             elif event.key == pygame.K_F11:
-                pygame.display.toggle_fullscreen()
+                is_fullscreen = not is_fullscreen
+                if is_fullscreen:
+                    saved_width, saved_height = WIDTH, HEIGHT
+                    flags = pygame.FULLSCREEN
+                    screen = pygame.display.set_mode((0, 0), flags)
+                else:
+                    flags = pygame.RESIZABLE
+                    screen = pygame.display.set_mode((saved_width, saved_height), flags)
 
     if pygame.mouse.get_pressed()[0] or pygame.mouse.get_pressed()[2]:
         mouse_x, mouse_y = pygame.mouse.get_pos()
