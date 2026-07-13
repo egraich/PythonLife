@@ -41,7 +41,7 @@ while running:
         elif event.type == pygame.VIDEORESIZE:
             WIDTH, HEIGHT = event.size
             COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
-            new_grid = np.zeros((ROWS, COLS), dtype=np.int8)
+            new_grid = np.random.choice([0, 1], size=(ROWS, COLS), p=[0.8, 0.2]).astype(np.int8)
             r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
             new_grid[:r, :c] = grid[:r, :c]
             grid = new_grid
