@@ -1,14 +1,19 @@
 import pygame
 import numpy as np
 
+
 WIDTH, HEIGHT = 800, 600
 CELL_SIZE = 8
 COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
 
 COLOR_BG = (10, 10, 15)
-COLOR_GRID = (20, 20, 30)
-COLOR_DIE = (40, 40, 50)
 COLOR_ALIVE = (0, 255, 150)
+
+
+pygame.init()
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("PythonLife")
+clock = pygame.time.Clock()
 
 grid = np.random.choice([0, 1], size=(ROWS, COLS), p=[0.8, 0.2]).astype(np.int8)
 
@@ -27,5 +32,25 @@ def update_grid(current_grid):
     survive = ((neighbors == 2) | (neighbors == 3)) & (current_grid == 1)
     return np.where(birth | survive, 1, 0).astype(np.int8)
 
-while 1:
-    print(update_grid(grid))
+running = True
+while running:
+    screen.fill(COLOR_BG)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+    y_indices, x_indices = np.where(grid == 1)
+    for row, col in zip(y_indices, x_indices):
+        pygame.draw.rect(
+            screen, 
+            COLOR_ALIVE, 
+            (col * CELL_SIZE, row * CELL_SIZE, CELL_SIZE - 1, CELL_SIZE - 1)
+        )
+
+    grid = update_grid(grid)
+
+    pygame.display.flip()
+    clock.tick(20)
+
+pygame.quit()
