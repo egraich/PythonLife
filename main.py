@@ -9,8 +9,7 @@ COLOR_BG = (10, 10, 15)
 COLOR_ALIVE = (0, 255, 150)
 
 pygame.init()
-flags = pygame.RESIZABLE
-screen = pygame.display.set_mode((WIDTH, HEIGHT), flags)
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("PythonLife")
 clock = pygame.time.Clock()
 
@@ -42,13 +41,15 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.VIDEORESIZE:
-            WIDTH, HEIGHT = event.size
-            COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
-            new_grid = np.random.choice([0, 1], size=(ROWS, COLS), p=[0.8, 0.2]).astype(np.int8)
-            r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
-            new_grid[:r, :c] = grid[:r, :c]
-            grid = new_grid
-            screen = pygame.display.set_mode((WIDTH, HEIGHT), flags)
+            if not is_fullscreen:
+                if event.size != (WIDTH, HEIGHT):
+                    WIDTH, HEIGHT = event.size
+                    COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
+                    new_grid = np.random.choice([0, 1], size=(ROWS, COLS), p=[0.8, 0.2]).astype(np.int8)
+                    r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
+                    new_grid[:r, :c] = grid[:r, :c]
+                    grid = new_grid
+                    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_SPACE:
                 paused = not paused
@@ -57,11 +58,17 @@ while running:
                 is_fullscreen = not is_fullscreen
                 if is_fullscreen:
                     saved_width, saved_height = WIDTH, HEIGHT
-                    flags = pygame.FULLSCREEN
-                    screen = pygame.display.set_mode((0, 0), flags)
+                    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+                    WIDTH, HEIGHT = screen.get_size()
                 else:
-                    flags = pygame.RESIZABLE
-                    screen = pygame.display.set_mode((saved_width, saved_height), flags)
+                    screen = pygame.display.set_mode((saved_width, saved_height), pygame.RESIZABLE)
+                    WIDTH, HEIGHT = saved_width, saved_height
+                
+                COLS, ROWS = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
+                new_grid = np.random.choice([0, 1], size=(ROWS, COLS), p=[0.8, 0.2]).astype(np.int8)
+                r, c = min(grid.shape[0], ROWS), min(grid.shape[1], COLS)
+                new_grid[:r, :c] = grid[:r, :c]
+                grid = new_grid
 
     if pygame.mouse.get_pressed()[0] or pygame.mouse.get_pressed()[2]:
         mouse_x, mouse_y = pygame.mouse.get_pos()
