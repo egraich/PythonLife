@@ -1,6 +1,6 @@
 # PythonLife
 
-An interactive, high-performance Conway's Game of Life simulation running on NumPy vectorization and Pygame.
+An interactive Conway's Game of Life simulation running on NumPy and Pygame.
 
 <img width="1920" height="1063" alt="f7a5492a-d73e-4699-a540-76f1919ec61b" src="https://github.com/user-attachments/assets/23481b92-e8a4-4a94-bbb9-42619325f635" />
 
@@ -20,7 +20,7 @@ python main.py
 
 ## Local Setup
 
-### Prerequisites
+### Requirements
 * Python 3.10+
 * NumPy
 * Pygame
@@ -46,4 +46,3 @@ The code shifts the entire grid in 8 directions using `np.roll()` and adds them 
 
 * Ruleset based on John Conway's Game of Life.
 * Built using the Pygame framework and NumPy library.
-```
