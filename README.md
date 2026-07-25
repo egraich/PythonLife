@@ -50,3 +50,5 @@ The code shifts the entire grid in 8 directions using `np.roll()` and adds them 
 
 * Ruleset based on John Conway's Game of Life.
 * Built using the Pygame framework and NumPy library.
+
+Made by [egraich](https://egraich.dev)
